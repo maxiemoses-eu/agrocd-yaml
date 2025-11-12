@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+    name: user
+    namespace: argocd
+    labels:
+        app.kubernetes.io/name: user
+spec:
+    project: default
+    source:
+        repoURL: "https://github.com/your-org/your-repo.git"
+        targetRevision: main
+        path: user
+    destination:
+        server: "https://kubernetes.default.svc"
+        namespace: user
+    syncPolicy:
+        automated:
+            prune: true
+            selfHeal: true
+        retry:
+            limit: 5
+            backoff:
+                duration: 5s
+                factor: 2
+                maxDuration: 3m
+        syncOptions:
+            - CreateNamespace=true
