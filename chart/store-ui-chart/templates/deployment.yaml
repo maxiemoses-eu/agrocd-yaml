@@ -1,52 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "products-chart.fullname" . }}
+  name: {{ include "store-ui-chart.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "products-chart.name" . }}
+    app.kubernetes.io/name: {{ include "store-ui-chart.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-    app.kubernetes.io/component: backend
+    app.kubernetes.io/component: frontend
     app.kubernetes.io/part-of: e-commerce
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "products-chart.name" . }}
+      app.kubernetes.io/name: {{ include "store-ui-chart.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "products-chart.name" . }}
+        app.kubernetes.io/name: {{ include "store-ui-chart.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app.kubernetes.io/component: backend
+        app.kubernetes.io/component: frontend
     spec:
-      serviceAccountName: {{ include "products-chart.serviceAccountName" . }}
+      serviceAccountName: {{ include "store-ui-chart.serviceAccountName" . }}
       containers:
-        - name: product-catalog-java
+        - name: store-ui
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 80
               protocol: TCP
           env:
-            - name: MONGODB_URI
-              value: {{ .Values.config.mongoDbUri | quote }}
-            - name: SERVICE_NAME
-              value: product-catalog-ms
+            - name: BACKEND_API_URL
+              value: {{ .Values.config.backendApiUrl | quote }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: /health/live
+              path: /
               port: http
-            initialDelaySeconds: 15
+            initialDelaySeconds: 10
             periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /health/ready
+              path: /
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10

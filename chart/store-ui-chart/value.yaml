@@ -1,0 +1,30 @@
+replicaCount: 2
+
+image:
+  repository: your-docker-registry/store-ui
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+config:
+  backendApiUrl: "http://product-catalog-ms:80"
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+service:
+  type: ClusterIP
+  port: 80
+  nodePort: null
+  labels:
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/part-of: e-commerce
+  annotations: {}
+
+serviceAccount:
+  create: true
+  name: ""
