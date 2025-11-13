@@ -26,15 +26,12 @@ spec:
             - containerPort: {{ .Values.service.port }}
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: username
+              value: mongoadmin
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-secret
-                  key: password
+                  name: mongodb-credentials
+                  key: mongodb-root-password
           resources:
             requests:
               memory: "256Mi"
