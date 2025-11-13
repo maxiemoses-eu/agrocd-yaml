@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: mongo
+  tag: 6.0.5
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 27017
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+persistence:
+  enabled: true
+  storageClass: gp3  # Use gp2 or gp3 for AWS EBS
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  existingClaim: ""  # Leave empty unless using a pre-created PVC
+
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 3000
+  fsGroup: 2000
+
+livenessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+
+readinessProbe:
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+
+mongodbSecret:
+  name: mongodb-secret
+  usernameKey: username
+  passwordKey: password
