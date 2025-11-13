@@ -10,50 +10,43 @@ metadata:
     app.kubernetes.io/component: backend
     app.kubernetes.io/part-of: e-commerce
 spec:
-  # Sets the desired number of Pods, pulled from values.yaml
   replicas: {{ .Values.replicaCount }}
   selector:
-    # Selector ensures the Deployment manages Pods with these labels
     matchLabels:
       app.kubernetes.io/name: {{ include "products-chart.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
-      # Labels applied to the Pod itself, which MUST match the selector above
       labels:
         app.kubernetes.io/name: {{ include "products-chart.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: backend
     spec:
-      # The Service Account the Pod uses for internal Kubernetes permissions
-      serviceAccountName: {{ include "products-chart.fullname" . }}-sa
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: product-catalog-java
-          # Docker image pulled from values.yaml. Confirmed to be a Java application.
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              # Container port set to 8080, matching the EXPOSE 8080 in the Dockerfile
               containerPort: 8080 
               protocol: TCP
           env:
-            # Environment variables injected for configuration
             - name: MONGODB_URI
               value: {{ .Values.config.mongoDbUri | quote }}
             - name: SERVICE_NAME
               value: product-catalog-ms
+          envFrom:
+            - configMapRef:
+                name: {{ include "products-chart.fullname" . }}-config
           resources:
-            # Resource requests and limits for CPU and Memory, pulled from values.yaml
             {{- toYaml .Values.resources | nindent 12 }}
-          # Health check: If this fails, Kubernetes restarts the container
           livenessProbe:
             httpGet:
               path: /health/live
               port: http
             initialDelaySeconds: 15
             periodSeconds: 20
-          # Health check: If this fails, Kubernetes temporarily stops sending traffic to the pod
           readinessProbe:
             httpGet:
               path: /health/ready

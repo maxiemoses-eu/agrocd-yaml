@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "products-chart.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "products-chart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  FEATURE_FLAG: {{ .Values.configMap.FEATURE_FLAG | quote }}
+  LOG_LEVEL: {{ .Values.configMap.LOG_LEVEL | quote }}

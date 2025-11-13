@@ -8,7 +8,7 @@ metadata:
 spec:
     project: default
     source:
-        repoURL: "https://github.com/your-org/your-repo.git"
+        repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
         targetRevision: main
         path: stream-application/products
     destination:

@@ -1,37 +1,39 @@
-# Number of desired pod replicas
-replicaCount: 2
+replicaCount: 1
 
-# Docker image configuration
 image:
-  repository: your-docker-registry/product-catalog-ms
-  tag: "1.0.0"
+  repository: your-registry/product-catalog-java
+  tag: 1.0.0
   pullPolicy: IfNotPresent
 
-# Application-specific environment variables
-config:
-  # Replace with a secure reference to a Kubernetes Secret in production
-  mongoDbUri: "mongodb://mongo-clusterip:27017/productsdb"
-
-# Resource limits and requests
-resources:
-  limits:
-    cpu: 300m
-    memory: 256Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi
-
-# Service configuration
 service:
   type: ClusterIP
-  port: 80
-  nodePort: null  # Set this if using NodePort type
-  labels:
-    app.kubernetes.io/component: backend
-    app.kubernetes.io/part-of: e-commerce
-  annotations: {}
+  port: 8080
 
-# Optional: Add serviceAccount name if needed
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+securityContext:
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+config:
+  mongoDbUri: mongodb://mongoadmin:mongodb123@mongodb.database.svc.cluster.local:27017/products
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+
 serviceAccount:
-  create: true
-  name: ""  # Leave empty to use default fullname-based naming
+  name: products-chart-sa
+
+configMap:
+  FEATURE_FLAG: "true"
+  LOG_LEVEL: "debug"
