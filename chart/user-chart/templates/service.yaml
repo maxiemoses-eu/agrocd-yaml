@@ -1,25 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "products-chart.fullname" . }}
-  labels:
-    {{- include "products-chart.labels" . | nindent 4 }}
-    {{- with .Values.service.labels }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- with .Values.service.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+  name: {{ include "users.fullname" . }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - name: http
-      port: {{ .Values.service.port }}
-      targetPort: 8080
+    - port: {{ .Values.service.port }}
+      targetPort: 8081
       protocol: TCP
-      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
+      name: http
   selector:
-    {{- include "products-chart.selectorLabels" . | nindent 4 }}
+    app: {{ include "users.name" . }}
