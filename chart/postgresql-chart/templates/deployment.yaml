@@ -1,67 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: postgresql
   labels:
-    app: mongodb
+    app: postgresql
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: mongodb
+      app: postgresql
   template:
     metadata:
       labels:
-        app: mongodb
+        app: postgresql
     spec:
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
         runAsGroup: {{ .Values.securityContext.runAsGroup }}
         fsGroup: {{ .Values.securityContext.fsGroup }}
       containers:
-        - name: mongodb
+        - name: postgresql
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.service.port }}
           env:
-            - name: MONGO_INITDB_ROOT_USERNAME
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mongodbSecret.name }}
-                  key: {{ .Values.mongodbSecret.usernameKey }}
-            - name: MONGO_INITDB_ROOT_PASSWORD
+                  name: {{ .Values.postgresqlSecret.name }}
+                  key: {{ .Values.postgresqlSecret.usernameKey }}
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mongodbSecret.name }}
-                  key: {{ .Values.mongodbSecret.passwordKey }}
-          resources:
-            requests:
-              memory: {{ .Values.resources.requests.memory }}
-              cpu: {{ .Values.resources.requests.cpu }}
-            limits:
-              memory: {{ .Values.resources.limits.memory }}
-              cpu: {{ .Values.resources.limits.cpu }}
-          livenessProbe:
-            exec:
-              command:
-                - mongo
-                - --eval
-                - db.runCommand({ ping: 1 })
-            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
-          readinessProbe:
-            exec:
-              command:
-                - mongo
-                - --eval
-                - db.runCommand({ ping: 1 })
-            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
-            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+                  name: {{ .Values.postgresqlSecret.name }}
+                  key: {{ .Values.postgresqlSecret.passwordKey }}
           volumeMounts:
-            - name: mongo-data
-              mountPath: /data/db
+            - name: pg-data
+              mountPath: /var/lib/postgresql/data
       volumes:
-        - name: mongo-data
+        - name: pg-data
           persistentVolumeClaim:
-            claimName: mongodb-pvc
+            claimName: postgresql-pvc

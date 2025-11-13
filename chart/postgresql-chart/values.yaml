@@ -1,13 +1,13 @@
 replicaCount: 1
 
 image:
-  repository: mongo
-  tag: 6.0.5
+  repository: postgres
+  tag: 15.3
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 27017
+  port: 5432
 
 resources:
   requests:
@@ -25,23 +25,15 @@ persistence:
   existingClaim: ""
 
 securityContext:
-  runAsUser: 1000
-  runAsGroup: 3000
-  fsGroup: 2000
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
 
-livenessProbe:
-  initialDelaySeconds: 30
-  timeoutSeconds: 5
-
-readinessProbe:
-  initialDelaySeconds: 5
-  timeoutSeconds: 3
-
-mongodbSecret:
-  name: mongodb-secret
+postgresqlSecret:
+  name: postgresql-secret
   usernameKey: username
   passwordKey: password
 
-mongodb:
-  username: mongoadmin
-  password: mongodb123
+postgresql:
+  username: postgres
+  password: postgresql123
