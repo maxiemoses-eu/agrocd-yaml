@@ -1,21 +1,21 @@
 replicaCount: 1
 
 image:
-  repository: postgres
-  tag: 15.3
+  repository: redis
+  tag: 7.2.3
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 5432
+  port: 6379
 
 resources:
   requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
     memory: "256Mi"
     cpu: "250m"
-  limits:
-    memory: "512Mi"
-    cpu: "500m"
 
 persistence:
   enabled: true
@@ -25,11 +25,6 @@ persistence:
   existingClaim: ""
 
 securityContext:
-  runAsUser: 999
-  runAsGroup: 999
-  fsGroup: 999
-
-postgresqlSecret:
-  name: postgresql-secret
-  usernameKey: username
-  passwordKey: password
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
