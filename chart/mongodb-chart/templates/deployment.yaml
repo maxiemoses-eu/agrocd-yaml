@@ -15,9 +15,9 @@ spec:
         app: mongodb
     spec:
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 3000
-        fsGroup: 2000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       containers:
         - name: mongodb
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -26,35 +26,38 @@ spec:
             - containerPort: {{ .Values.service.port }}
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: mongoadmin
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mongodbSecret.name }}
+                  key: {{ .Values.mongodbSecret.usernameKey }}
             - name: MONGO_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mongodb-credentials
-                  key: mongodb-root-password
+                  name: {{ .Values.mongodbSecret.name }}
+                  key: {{ .Values.mongodbSecret.passwordKey }}
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
             limits:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
           livenessProbe:
             exec:
               command:
                 - mongo
                 - --eval
                 - db.runCommand({ ping: 1 })
-            initialDelaySeconds: 30
-            timeoutSeconds: 5
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
           readinessProbe:
             exec:
               command:
                 - mongo
                 - --eval
                 - db.runCommand({ ping: 1 })
-            initialDelaySeconds: 5
-            timeoutSeconds: 3
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db

@@ -32,3 +32,6 @@ securityContext:
 redisSecret:
   name: redis-secret
   passwordKey: redis-password
+
+redis:
+  password: redis123
