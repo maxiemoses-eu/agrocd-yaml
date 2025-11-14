@@ -10,7 +10,7 @@ spec:
     source:
         repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
         targetRevision: main
-        path: stream-application/store-ui
+        path: chart/store-ui-chart
     destination:
         server: "https://kubernetes.default.svc"
         namespace: store-ui
