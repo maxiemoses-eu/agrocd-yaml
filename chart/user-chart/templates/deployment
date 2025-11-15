@@ -1,40 +1,63 @@
-replicaCount: 1
-
-image:
-  repository: your-registry/user-service
-  tag: 1.0.0
-  pullPolicy: IfNotPresent
-
-service:
-  type: ClusterIP
-  port: 8081
-
-resources:
-  requests:
-    memory: "256Mi"
-    cpu: "250m"
-  limits:
-    memory: "512Mi"
-    cpu: "500m"
-
-autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 70
-
-serviceAccount:
-  name: users-sa
-
-configMap:
-  LOG_LEVEL: "info"
-  FEATURE_FLAG: "true"
-
-userSecret:
-  name: user-service-secret
-  dbUriKey: dbUri
-  jwtKey: jwtSecret
-
-userConfig:
-  dbUri: mongodb://useradmin:userpass@mongodb.database.svc.cluster.local:27017/users
-  jwtSecret: supersecretjwtkey
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "user-chart.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "user-chart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: streamlinepayx
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "user-chart.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "user-chart.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: backend
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      containers:
+        - name: user-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: user-chart-secret
+                  key: dbUri
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: user-chart-secret
+                  key: jwtSecret
+            - name: SERVICE_NAME
+              value: user-ms
+          envFrom:
+            - configMapRef:
+                name: {{ include "user-chart.fullname" . }}-config
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
