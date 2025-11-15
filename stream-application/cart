@@ -10,7 +10,7 @@ spec:
     source:
         repoURL: "https://github.com/maxiemoses-eu/StreamlinePayX-2
         targetRevision: main
-        path: stream-application/cart
+        path: chart/cart-chart
     destination:
         server: "https://kubernetes.default.svc"
         namespace: cart
