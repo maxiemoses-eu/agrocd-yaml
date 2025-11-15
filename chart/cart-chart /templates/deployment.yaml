@@ -28,6 +28,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "cart.fullname" . }}-config
+          env:
+            - name: REDIS_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cartSecret.name }}
+                  key: {{ .Values.cartSecret.redisKey }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.cartSecret.name }}
+                  key: {{ .Values.cartSecret.jwtKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:

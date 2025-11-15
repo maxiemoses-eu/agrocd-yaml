@@ -32,8 +32,16 @@ spec:
               containerPort: 8080 
               protocol: TCP
           env:
-            - name: MONGODB_URI
-              value: {{ .Values.config.mongoDbUri | quote }}
+            - name: POSTGRES_URI
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.productsSecret.name }}
+                  key: {{ .Values.productsSecret.dbUriKey }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.productsSecret.name }}
+                  key: {{ .Values.productsSecret.jwtKey }}
             - name: SERVICE_NAME
               value: product-catalog-ms
           envFrom:
