@@ -6,7 +6,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP  # Internal service only; no external exposure
+  type: ClusterIP
   port: 80
 
 resources:
@@ -31,4 +31,16 @@ configMap:
   FEATURE_FLAG: "true"
 
 ingress:
-  enabled: false  # Cart is accessed via store-ui, no direct ingress needed
+  enabled: false
+
+# Secret references for Cart
+cartSecret:
+  name: cart-chart-secret
+  redisKey: redisUri
+  jwtKey: jwtSecret
+
+# Secret references for Products
+productsSecret:
+  name: products-chart-secret
+  dbUriKey: dbUri
+  jwtKey: jwtSecret
