@@ -1,25 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "products-chart.fullname" . }}
+  name: {{ include "products.fullname" . }}
   labels:
-    {{- include "products-chart.labels" . | nindent 4 }}
-    {{- if .Values.service.labels }}
-    {{- toYaml .Values.service.labels | nindent 4 }}
-    {{- end }}
-  {{- with .Values.service.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- include "products.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type | default "ClusterIP" }}
+  type: {{ .Values.service.type }}
   ports:
-    - name: http
-      port: {{ .Values.service.port | default 80 }}
-      targetPort: 8080 # Hardcoded to 8080 to match your Dockerfile/app config
+    - port: {{ .Values.service.port }}
+      targetPort: http
       protocol: TCP
-      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
+      name: http
   selector:
-    {{- include "products-chart.selectorLabels" . | nindent 4 }}
+    {{- include "products.selectorLabels" . | nindent 4 }}

@@ -7,7 +7,7 @@ image:
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 3001
 
 resources:
   requests:
@@ -21,6 +21,11 @@ securityContext:
   runAsUser: 1001
   runAsGroup: 1001
   fsGroup: 1001
+
+productsSecret:
+  name: "streamlinepay-products-secret" 
+  dbUriKey: "POSTGRES_URI"
+  jwtKey: "JWT_SECRET" 
 
 config:
   mongoDbUri: mongodb://mongoadmin:mongodb123@mongodb.database.svc.cluster.local:27017/products
