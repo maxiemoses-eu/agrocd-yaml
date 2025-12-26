@@ -2,8 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "products.fullname" . }}
-  namespace: {{ .Release.Namespace }}
-  labels:
+   labels:
     app.kubernetes.io/name: {{ include "products.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
