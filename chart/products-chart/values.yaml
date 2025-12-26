@@ -1,7 +1,8 @@
+namespace: products
+
 replicaCount: 2
 
 image:
-  # FIXED: Updated to the exact repo name from your AWS screenshot
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
   tag: bb2504e-116
   pullPolicy: IfNotPresent
@@ -24,12 +25,10 @@ securityContext:
   fsGroup: 1001
 
 productsSecret:
-  name: "products-chart-secret" 
-  # These match the 'data' keys (dbUri/jwtSecret) you just created manually
-  dbUriKey: "dbUri"      
-  jwtKey: "jwtSecret" 
+  name: "products-chart-secret"
+  dbUriKey: "dbUri"
+  jwtKey: "jwtSecret"
 
-# Note: Your deployment currently uses POSTGRES_URI, ensure this URI matches your logic
 config:
   mongoDbUri: mongodb://mongoadmin:mongodb123@mongodb.database.svc.cluster.local:27017/products
 
@@ -40,7 +39,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 serviceAccount:
-  # FIXED: Enabled creation so Helm generates the 'products-chart-sa' object
   create: true
   name: products-chart-sa
   automount: true
