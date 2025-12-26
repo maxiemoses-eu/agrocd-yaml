@@ -1,9 +1,6 @@
-# values.yaml for StreamlinePay Products Service
-
 replicaCount: 2
 
 image:
-  # EXACT repo name and tag from your manifest and AWS ECR
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
   tag: bb2504e-116
   pullPolicy: IfNotPresent
@@ -25,7 +22,6 @@ securityContext:
   runAsGroup: 1001
   fsGroup: 1001
 
-# These match the Secret and keys you created manually
 productsSecret:
   name: "products-chart-secret"
   dbUriKey: "dbUri"
@@ -33,11 +29,10 @@ productsSecret:
 
 serviceAccount:
   create: true
-  # FIXED: Aligned with 'serviceAccountName: products-chart-sa' in your Deployment
+  # REQUIRED: This must match what is in your Deployment's serviceAccountName field
   name: "products-chart-sa"
   automount: true
 
-# These values populate the products-config ConfigMap
 configMap:
   FEATURE_FLAG: "true"
   LOG_LEVEL: "debug"
