@@ -1,8 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: your-registry/product-catalog-java
-  tag: 1.0.0
+  repository: streamlinpay-prod-products-cna-microservice
+  tag: bb2504e-116
   pullPolicy: IfNotPresent
 
 service:
@@ -23,7 +23,7 @@ securityContext:
   fsGroup: 1001
 
 productsSecret:
-  name: "streamlinepay-products-secret" 
+  name: "products-chart-secret" 
   dbUriKey: "POSTGRES_URI"
   jwtKey: "JWT_SECRET" 
 
