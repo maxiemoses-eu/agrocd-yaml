@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  # UPDATED: Added the full AWS ECR Registry path
+  # FIXED: Added the full ECR Registry path so EKS can find the image
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-products
   tag: bb2504e-116
   pullPolicy: IfNotPresent
@@ -25,7 +25,7 @@ securityContext:
 
 productsSecret:
   name: "products-chart-secret" 
-  # UPDATED: These must match the 'data' keys in your Secret YAML
+  # FIXED: These must match the 'data' keys (dbUri/jwtSecret) inside your Secret YAML
   dbUriKey: "dbUri"      
   jwtKey: "jwtSecret" 
 
