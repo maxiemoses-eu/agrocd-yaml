@@ -2,31 +2,28 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "products.fullname" . }}
-   labels:
-    app.kubernetes.io/name: {{ include "products.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "products.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
-    app.kubernetes.io/part-of: e-commerce
+    app.kubernetes.io/part-of: streamlinepay
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "products.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "products.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "products.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "products.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: backend
     spec:
+      # FIXED: Linked to the name in values.yaml
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: product-catalog-java
-          # Pulls the full ECR URI from your values.yaml
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -48,7 +45,7 @@ spec:
               value: product-catalog-ms
           envFrom:
             - configMapRef:
-                # FIXED: Ensure this matches the name in your ConfigMap.yaml exactly
+                # FIXED: Aligned with the manual configmap you created
                 name: {{ include "products.fullname" . }}-config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

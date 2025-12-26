@@ -3,8 +3,6 @@ kind: Application
 metadata:
     name: products
     namespace: argocd
-    labels:
-        app.kubernetes.io/name: products
 spec:
     project: default
     source:
@@ -18,11 +16,5 @@ spec:
         automated:
             prune: true
             selfHeal: true
-        retry:
-            limit: 5
-            backoff:
-                duration: 5s
-                factor: 2
-                maxDuration: 3m
         syncOptions:
             - CreateNamespace=true

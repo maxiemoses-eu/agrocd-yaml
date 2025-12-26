@@ -1,8 +1,7 @@
-namespace: products
-
 replicaCount: 2
 
 image:
+  # EXACT repo name from your AWS screenshot
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
   tag: bb2504e-116
   pullPolicy: IfNotPresent
@@ -29,20 +28,17 @@ productsSecret:
   dbUriKey: "dbUri"
   jwtKey: "jwtSecret"
 
-config:
-  mongoDbUri: mongodb://mongoadmin:mongodb123@mongodb.database.svc.cluster.local:27017/products
+serviceAccount:
+  create: true
+  name: "products-chart-sa"
+  automount: true
+
+configMap:
+  FEATURE_FLAG: "true"
+  LOG_LEVEL: "debug"
 
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 70
-
-serviceAccount:
-  create: true
-  name: products-chart-sa
-  automount: true
-
-configMap:
-  FEATURE_FLAG: "true"
-  LOG_LEVEL: "debug"
