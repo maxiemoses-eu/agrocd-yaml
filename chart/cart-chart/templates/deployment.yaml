@@ -3,35 +3,28 @@ kind: Deployment
 metadata:
   name: {{ include "cart.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "cart.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- include "cart.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "cart.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "cart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "cart.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "cart.selectorLabels" . | nindent 8 }}
     spec:
-      # ADD THIS: Permission to pull from ECR
       imagePullSecrets:
-        - name: ecr-private-key
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: cart
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            # UPDATE: Change from 80 to 8081
-            - containerPort: 8081
-              name: http
-          envFrom:
-            - configMapRef:
-                name: {{ include "cart.fullname" . }}-config
+            - name: http
+              containerPort: 8081
+              protocol: TCP
           env:
             - name: REDIS_URI
               valueFrom:
@@ -43,17 +36,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.cartSecret.name }}
                   key: {{ .Values.cartSecret.jwtKey }}
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: /health/live # Standard for your other services
+              path: /health/live
               port: http
             initialDelaySeconds: 15
-            periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /health/ready # Standard for your other services
+              path: /health/ready
               port: http
             initialDelaySeconds: 10
-            periodSeconds: 10
