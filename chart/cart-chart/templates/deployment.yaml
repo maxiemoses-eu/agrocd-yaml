@@ -16,9 +16,8 @@ spec:
     spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
-      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
-        - name: cart
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -36,13 +35,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.cartSecret.name }}
                   key: {{ .Values.cartSecret.jwtKey }}
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: http
-            initialDelaySeconds: 15
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: http
-            initialDelaySeconds: 10
+          envFrom:
+            - configMapRef:
+                name: {{ include "cart.fullname" . }}-config
