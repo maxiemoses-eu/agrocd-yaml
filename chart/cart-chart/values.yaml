@@ -5,7 +5,6 @@ image:
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
-# Link to the ECR credential secret you'll create via kubectl
 imagePullSecrets:
   - name: ecr-private-key
 
@@ -13,10 +12,18 @@ service:
   type: ClusterIP
   port: 8081
 
+# FIX 1: This block stops the ServiceAccount nil pointer error
 serviceAccount:
   create: true
   name: "cart-sa"
   automount: true
+
+# FIX 2: This block stops the HPA nil pointer error seen in your screenshot
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
 
 cartSecret:
   name: "cart-chart-secret"
@@ -26,11 +33,3 @@ cartSecret:
 configMap:
   API_BASE_URL: "http://product-service.default.svc.cluster.local:8080"
   FEATURE_FLAG: "true"
-
-resources:
-  requests:
-    memory: "128Mi"
-    cpu: "100m"
-  limits:
-    memory: "256Mi"
-    cpu: "250m"
