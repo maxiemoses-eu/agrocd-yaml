@@ -12,13 +12,12 @@ service:
   type: ClusterIP
   port: 8081
 
-# FIX 1: This block stops the ServiceAccount nil pointer error
 serviceAccount:
   create: true
   name: "cart-sa"
   automount: true
 
-# FIX 2: This block stops the HPA nil pointer error seen in your screenshot
+# This specific block fixes the error in your image_200838.png
 autoscaling:
   enabled: false
   minReplicas: 1
