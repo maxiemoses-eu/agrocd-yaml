@@ -5,7 +5,6 @@ image:
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
-# ADD THIS: Link to the secret you will create via kubectl
 imagePullSecrets:
   - name: ecr-private-key
 
@@ -13,4 +12,17 @@ service:
   type: ClusterIP
   port: 8081
 
-# ... (rest of your existing values)
+# FIXED: Ensure this section exists and is properly indented
+serviceAccount:
+  create: true
+  name: "cart-sa"
+  automount: true
+
+cartSecret:
+  name: "cart-chart-secret"
+  redisKey: "redisUri"
+  jwtKey: "jwtSecret"
+
+configMap:
+  API_BASE_URL: "http://product-service.default.svc.cluster.local:8080"
+  FEATURE_FLAG: "true"
