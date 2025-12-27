@@ -12,3 +12,8 @@ app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 {{- define "user.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end }}
+
+{{- define "user.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "user.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end }}
