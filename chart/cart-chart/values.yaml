@@ -5,42 +5,12 @@ image:
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
+# ADD THIS: Link to the secret you will create via kubectl
+imagePullSecrets:
+  - name: ecr-private-key
+
 service:
   type: ClusterIP
   port: 8081
 
-resources:
-  requests:
-    memory: "128Mi"
-    cpu: "100m"
-  limits:
-    memory: "256Mi"
-    cpu: "250m"
-
-autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 70
-
-serviceAccount:
-  name: cart
-
-configMap:
-  API_BASE_URL: "http://product-service.default.svc.cluster.local:8080"
-  FEATURE_FLAG: "true"
-
-ingress:
-  enabled: false
-
-# Secret references for Cart
-cartSecret:
-  name: cart-chart-secret
-  redisKey: redisUri
-  jwtKey: jwtSecret
-
-# Secret references for Products
-productsSecret:
-  name: products-chart-secret
-  dbUriKey: dbUri
-  jwtKey: jwtSecret
+# ... (rest of your existing values)

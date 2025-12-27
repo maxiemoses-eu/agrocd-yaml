@@ -17,13 +17,17 @@ spec:
         app.kubernetes.io/name: {{ include "cart.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      # ADD THIS: Permission to pull from ECR
+      imagePullSecrets:
+        - name: ecr-private-key
       serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: cart
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 80
+            # UPDATE: Change from 80 to 8081
+            - containerPort: 8081
               name: http
           envFrom:
             - configMapRef:
@@ -43,13 +47,13 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 10
+              path: /health/live # Standard for your other services
+              port: http
+            initialDelaySeconds: 15
             periodSeconds: 20
           readinessProbe:
             httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 5
+              path: /health/ready # Standard for your other services
+              port: http
+            initialDelaySeconds: 10
             periodSeconds: 10
