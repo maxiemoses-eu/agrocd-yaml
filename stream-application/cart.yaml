@@ -1,28 +1,33 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-    name: cart
-    namespace: argocd
-    labels:
-        app.kubernetes.io/name: cart
+  name: cart
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: cart
 spec:
-    project: default
-    source:
-        repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
-        targetRevision: main
-        path: chart/cart-chart
-    destination:
-        server: "https://kubernetes.default.svc"
-        namespace: cart
-    syncPolicy:
-        automated:
-            prune: true
-            selfHeal: true
-        retry:
-            limit: 5
-            backoff:
-                duration: 5s
-                factor: 2
-                maxDuration: 3m
-        syncOptions:
-            - CreateNamespace=true
+  project: default
+  source:
+    repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
+    targetRevision: main
+    path: chart/cart-chart
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: cart
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

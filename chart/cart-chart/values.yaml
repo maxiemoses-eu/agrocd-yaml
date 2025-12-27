@@ -8,32 +8,37 @@ image:
 imagePullSecrets:
   - name: ecr-private-key
 
-# Use 3003 for the service port as you requested
 service:
   type: ClusterIP
   port: 3003
+  targetPort: http  # Matches named containerPort in deployment.yaml
 
-# Fixed blocks to stop the "nil pointer" errors in your screenshots
 serviceAccount:
   create: true
-  name: "cart-sa"
+  name: cart-sa
   automount: true
 
-# This specific block fixes the error in your image_200838.png
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
 
-# Pure data for your secrets
 cartSecret:
-  name: "cart-chart-secret"
-  redisKey: "redisUri"
-  jwtKey: "jwtSecret"
-  redisUri: "redis://redis.database.svc.cluster.local:6379/0"
-  jwtSecret: "supersecretjwtkey"
+  name: cart-chart-secret
+  data:
+    redisUri: redis://redis.database.svc.cluster.local:6379/0
+    jwtSecret: supersecretjwtkey
 
 configMap:
   API_BASE_URL: "http://product-service.default.svc.cluster.local:8080"
   FEATURE_FLAG: "true"
+  LOG_LEVEL: "info"
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"

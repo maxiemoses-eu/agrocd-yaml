@@ -4,5 +4,6 @@ metadata:
   name: {{ include "cart.fullname" . }}-config
   namespace: {{ .Release.Namespace }}
 data:
-  LOG_LEVEL: {{ .Values.configMap.LOG_LEVEL | quote }}
+  API_BASE_URL: {{ .Values.configMap.API_BASE_URL | quote }}
   FEATURE_FLAG: {{ .Values.configMap.FEATURE_FLAG | quote }}
+  LOG_LEVEL: {{ .Values.configMap.LOG_LEVEL | quote }}
