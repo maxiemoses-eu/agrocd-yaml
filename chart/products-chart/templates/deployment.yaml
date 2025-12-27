@@ -28,10 +28,10 @@ spec:
           # FIX 1: Run Node directly (Distroless requirement)
           command: ["/nodejs/bin/node"]
           
-          # FIX 2: Set the working directory to where the files actually are
-          # This fixes the "Cannot find module '/app/index.js'" error
+          # FIX 2: Using the absolute path to the nested index.js
+          # Since your Dockerfile COPY created /app/app/index.js
           workingDir: /app/app
-          args: ["index.js"]
+          args: ["/app/app/index.js"] 
 
           # FIX 3: Port must match EXPOSE 3001 in Dockerfile
           ports:
