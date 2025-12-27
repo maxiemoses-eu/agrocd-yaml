@@ -1,15 +1,13 @@
-# values.yaml for User Microservice
 replicaCount: 2
 
 image:
-  # FIXED: Updated to follow your StreamlinePay ECR naming convention
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-user-cna-microservice
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 3002 # Matches your Service manifest
+  port: 3002
 
 resources:
   requests:
@@ -24,15 +22,12 @@ securityContext:
   runAsGroup: 1001
   fsGroup: 1001
 
-# FIXED: Aligned with 'user-service-secret' in your Deployment env
-userSecret:
-  name: "user-service-secret"
-  dbUriKey: "dbUri"
-  jwtKey: "jwtSecret"
+userConfig:
+  dbUri: mongodb://useradmin:userpass@mongodb.database.svc.cluster.local:27017/users
+  jwtSecret: supersecretjwtkey
 
 serviceAccount:
   create: true
-  # FIXED: Matches 'users-sa' exactly as defined in your Deployment
   name: "users-sa"
   automount: true
 
