@@ -1,4 +1,37 @@
-apiVersion: apps/v1
+replicaCount: 2
+
+image:
+  repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
+  tag: bb2504e-116
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: "250m"       # ✅ Quoted
+    memory: "256Mi"   # ✅ Quoted
+  limits:
+    cpu: "500m"       # ✅ Quoted
+    memory: "512Mi"   # ✅ Quoted
+
+securityContext:
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+productsSecret:
+  name: products-chart-secret
+  dbUri: postgres://productadmin:productpass@postgresql.database.svc.cluster.local:5432/products
+  jwtSecret: supersecretjwtkey
+
+serviceAccount:
+  create: true
+  name: products-chart-sa
+  automount: true
+
+configMap:apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "products.fullname" . }}
@@ -25,13 +58,15 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # DISTROLESS PATH: Required for gcr.io/distroless/nodejs20
+          # FIX 1: Run Node directly from the Distroless path
           command: ["/nodejs/bin/node"]
           
-          # NEW PATH ALIGNMENT: Matches your "COPY --from=build /app/ ." change
+          # FIX 2: Standard paths (Matched to your new Dockerfile COPY command)
+          # Your code is now flat in /app/
           workingDir: /app
           args: ["index.js"] 
 
+          # FIX 3: Port must match EXPOSE 3001 in Dockerfile
           ports:
             - name: http
               containerPort: 3001
@@ -50,10 +85,20 @@ spec:
             - name: SERVICE_NAME
               value: product-catalog-ms
           
-          # VERIFIED CONFIGMAP: Hardcoded to ensure connection
+          # FIX 4: Corrected ConfigMap name
           envFrom:
             - configMapRef:
                 name: products-config
           
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
+          # Probes are still removed to ensure the container starts without 404 loops
+  FEATURE_FLAG: "true"
+  LOG_LEVEL: "debug"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: "70"  # ✅ Quoted

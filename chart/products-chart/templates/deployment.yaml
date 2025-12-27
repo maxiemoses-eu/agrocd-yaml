@@ -25,15 +25,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # FIX 1: Run Node directly (Distroless requirement)
+          # DISTROLESS PATH: Required for gcr.io/distroless/nodejs20
           command: ["/nodejs/bin/node"]
           
-          # FIX 2: Using the absolute path to the nested index.js
-          # Since your Dockerfile COPY created /app/app/index.js
-          workingDir: /app/app
-          args: ["/app/app/index.js"] 
+          # NEW PATH ALIGNMENT: Matches your "COPY --from=build /app/ ." change
+          workingDir: /app
+          args: ["index.js"] 
 
-          # FIX 3: Port must match EXPOSE 3001 in Dockerfile
           ports:
             - name: http
               containerPort: 3001
@@ -52,12 +50,10 @@ spec:
             - name: SERVICE_NAME
               value: product-catalog-ms
           
-          # FIX 4: Hardcoded to the existing ConfigMap name
+          # VERIFIED CONFIGMAP: Hardcoded to ensure connection
           envFrom:
             - configMapRef:
                 name: products-config
           
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-
-          # FIX 5: Probes removed to prevent 404 restart loops during startup
