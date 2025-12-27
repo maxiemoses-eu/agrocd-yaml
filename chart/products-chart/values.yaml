@@ -7,15 +7,14 @@ image:
 
 service:
   type: ClusterIP
-  port: 3001
 
 resources:
   requests:
-    cpu: "250m"
-    memory: "256Mi"
+    cpu: 250m
+    memory: 256Mi
   limits:
-    cpu: "500m"
-    memory: "512Mi"
+    cpu: 500m
+    memory: 512Mi
 
 securityContext:
   runAsUser: 1001
@@ -23,14 +22,13 @@ securityContext:
   fsGroup: 1001
 
 productsSecret:
-  name: "products-chart-secret"
-  dbUriKey: "dbUri"
-  jwtKey: "jwtSecret"
+  name: products-chart-secret
+  dbUri: postgres://productadmin:productpass@postgresql.database.svc.cluster.local:5432/products
+  jwtSecret: supersecretjwtkey
 
 serviceAccount:
   create: true
-  # REQUIRED: This must match what is in your Deployment's serviceAccountName field
-  name: "products-chart-sa"
+  name: products-chart-sa
   automount: true
 
 configMap:
