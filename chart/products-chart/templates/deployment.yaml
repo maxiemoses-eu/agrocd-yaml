@@ -2,10 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "products.fullname" . }}
-  labels:
-    {{- include "products.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
-    app.kubernetes.io/part-of: streamlinepay
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -15,45 +11,22 @@ spec:
     metadata:
       labels:
         {{- include "products.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: backend
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-      securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          
-          # DISTROLESS PATH: Required for gcr.io/distroless/nodejs20
           command: ["/nodejs/bin/node"]
-          
-          # NEW PATH ALIGNMENT: Matches your "COPY --from=build /app/ ." change
           workingDir: /app
-          args: ["index.js"] 
-
+          args: ["index.js"] # Clean path thanks to your Dockerfile fix!
           ports:
-            - name: http
-              containerPort: 3001
-              protocol: TCP
+            - containerPort: 3001
           env:
             - name: POSTGRES_URI
               valueFrom:
                 secretKeyRef:
                   name: products-chart-secret 
                   key: dbUri
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: products-chart-secret
-                  key: jwtSecret
-            - name: SERVICE_NAME
-              value: product-catalog-ms
-          
-          # VERIFIED CONFIGMAP: Hardcoded to ensure connection
           envFrom:
             - configMapRef:
                 name: products-config
-          
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}

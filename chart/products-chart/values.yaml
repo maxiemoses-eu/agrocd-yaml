@@ -29,9 +29,7 @@ productsSecret:
 serviceAccount:
   create: true
   name: products-chart-sa
-  automount: true
 
-# These are the variables used by the app
 configMap:
   FEATURE_FLAG: "true"
   LOG_LEVEL: "debug"
