@@ -25,11 +25,11 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # FIX 1: Explicitly run Node (Required for Distroless)
+          # ATOMIC FIX 1: Explicitly run Node (Required for Distroless images)
           command: ["/nodejs/bin/node"]
           args: ["index.js"]
 
-          # FIX 2: Align Port with Dockerfile (3001)
+          # ATOMIC FIX 2: Correct port (Matches Dockerfile EXPOSE 3001)
           ports:
             - name: http
               containerPort: 3001
@@ -38,20 +38,23 @@ spec:
             - name: POSTGRES_URI
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.productsSecret.name }}
+                  name: products-chart-secret 
                   key: dbUri
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.productsSecret.name }}
+                  name: products-chart-secret
                   key: jwtSecret
             - name: SERVICE_NAME
               value: product-catalog-ms
+          
+          # ATOMIC FIX 3: Hardcoded ConfigMap name to stop "ConfigMap not found" error
           envFrom:
             - configMapRef:
-                name: {{ include "products.fullname" . }}-config
+                name: products-config
+          
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
-          # FIX 3: Remove probes to stop the 404 restart loop (Atomic Strategy)
-          # We will re-add these once the Node app has health endpoints.
+          # ATOMIC FIX 4: Probes removed to prevent 404 Restart Loop
+          # Re-add these once the app's health logic is verified.
