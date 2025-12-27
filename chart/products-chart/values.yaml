@@ -10,11 +10,11 @@ service:
 
 resources:
   requests:
-    cpu: "250m"       # ✅ Quoted
-    memory: "256Mi"   # ✅ Quoted
+    cpu: "250m"
+    memory: "256Mi"
   limits:
-    cpu: "500m"       # ✅ Quoted
-    memory: "512Mi"   # ✅ Quoted
+    cpu: "500m"
+    memory: "512Mi"
 
 securityContext:
   runAsUser: 1001
@@ -31,69 +31,8 @@ serviceAccount:
   name: products-chart-sa
   automount: true
 
-configMap:apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "products.fullname" . }}
-  labels:
-    {{- include "products.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
-    app.kubernetes.io/part-of: streamlinepay
-spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      {{- include "products.selectorLabels" . | nindent 6 }}
-  template:
-    metadata:
-      labels:
-        {{- include "products.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: backend
-    spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
-      securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
-      containers:
-        - name: product-catalog
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          
-          # FIX 1: Run Node directly from the Distroless path
-          command: ["/nodejs/bin/node"]
-          
-          # FIX 2: Standard paths (Matched to your new Dockerfile COPY command)
-          # Your code is now flat in /app/
-          workingDir: /app
-          args: ["index.js"] 
-
-          # FIX 3: Port must match EXPOSE 3001 in Dockerfile
-          ports:
-            - name: http
-              containerPort: 3001
-              protocol: TCP
-          env:
-            - name: POSTGRES_URI
-              valueFrom:
-                secretKeyRef:
-                  name: products-chart-secret 
-                  key: dbUri
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: products-chart-secret
-                  key: jwtSecret
-            - name: SERVICE_NAME
-              value: product-catalog-ms
-          
-          # FIX 4: Corrected ConfigMap name
-          envFrom:
-            - configMapRef:
-                name: products-config
-          
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-
-          # Probes are still removed to ensure the container starts without 404 loops
+# These are the variables used by the app
+configMap:
   FEATURE_FLAG: "true"
   LOG_LEVEL: "debug"
 
@@ -101,4 +40,4 @@ autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 3
-  targetCPUUtilizationPercentage: "70"  # ✅ Quoted
+  targetCPUUtilizationPercentage: 70
