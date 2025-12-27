@@ -22,7 +22,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # FIX: Overrides the Dockerfile JShell default to run the compiled class
+          # FIX: Overrides JShell to run your CartService class
           command: ["java"]
           args: ["CartService"]
 
@@ -45,16 +45,5 @@ spec:
             - configMapRef:
                 name: {{ include "cart.fullname" . }}-config
 
-          # FIX: Increased delays to prevent CrashLoopBackOff during Java startup
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 15
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: http
-            initialDelaySeconds: 20
-            periodSeconds: 10
+          # REMOVED: Probes were returning 404 and killing the pod
+          # Once your Java code handles /health/live, you can re-add them here.
