@@ -17,8 +17,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/nodejs/bin/node"]
-          args: ["/app/app/index.js"]
-          workingDir: /app/app
+          args: ["index.js"]
+          workingDir: /app
           ports:
             - containerPort: 3001
           env:
