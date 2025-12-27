@@ -25,11 +25,15 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # ATOMIC FIX 1: Explicitly run Node (Required for Distroless images)
+          # FIX 1: Run Node directly (Distroless requirement)
           command: ["/nodejs/bin/node"]
+          
+          # FIX 2: Set the working directory to where the files actually are
+          # This fixes the "Cannot find module '/app/index.js'" error
+          workingDir: /app/app
           args: ["index.js"]
 
-          # ATOMIC FIX 2: Correct port (Matches Dockerfile EXPOSE 3001)
+          # FIX 3: Port must match EXPOSE 3001 in Dockerfile
           ports:
             - name: http
               containerPort: 3001
@@ -48,7 +52,7 @@ spec:
             - name: SERVICE_NAME
               value: product-catalog-ms
           
-          # ATOMIC FIX 3: Hardcoded ConfigMap name to stop "ConfigMap not found" error
+          # FIX 4: Hardcoded to the existing ConfigMap name
           envFrom:
             - configMapRef:
                 name: products-config
@@ -56,5 +60,4 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
-          # ATOMIC FIX 4: Probes removed to prevent 404 Restart Loop
-          # Re-add these once the app's health logic is verified.
+          # FIX 5: Probes removed to prevent 404 restart loops during startup
