@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: your-registry/store-ui
-  tag: latest
+  repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-cart-cna-microservice
+  tag: bb2504e-116
   pullPolicy: IfNotPresent
 
 service:
