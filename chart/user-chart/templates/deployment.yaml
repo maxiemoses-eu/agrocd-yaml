@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "user.fullname" . }}
-  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "user.labels" . | nindent 4 }}
 spec:
@@ -22,35 +21,29 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8081 # Verified against your provided manifest
+              containerPort: 8081
               protocol: TCP
           env:
             - name: POSTGRES_URI
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.userSecret.name }}
-                  key: {{ .Values.userSecret.dbUriKey }}
+                  key: dbUri
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.userSecret.name }}
-                  key: {{ .Values.userSecret.jwtKey }}
-            - name: SERVICE_NAME
-              value: user-service-ms
+                  key: jwtSecret
           envFrom:
             - configMapRef:
-                name: user-config
+                name: {{ include "user.fullname" . }}-config
           livenessProbe:
             httpGet:
               path: /health/live
               port: http
             initialDelaySeconds: 15
-            periodSeconds: 20
           readinessProbe:
             httpGet:
               path: /health/ready
               port: http
             initialDelaySeconds: 5
-            periodSeconds: 10
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}

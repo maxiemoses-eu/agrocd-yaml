@@ -1,28 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-    name: user
-    namespace: argocd
-    labels:
-        app.kubernetes.io/name: user
+  name: user
+  namespace: argocd
 spec:
-    project: default
-    source:
-        repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
-        targetRevision: main
-        path: chart/user-chart
-    destination:
-        server: "https://kubernetes.default.svc"
-        namespace: user
-    syncPolicy:
-        automated:
-            prune: true
-            selfHeal: true
-        retry:
-            limit: 5
-            backoff:
-                duration: 5s
-                factor: 2
-                maxDuration: 3m
-        syncOptions:
-            - CreateNamespace=true
+  project: default
+  source:
+    repoURL: "https://github.com/maxiemoses-eu/agrocd-yaml.git"
+    targetRevision: main
+    path: chart/user-chart
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: user
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
