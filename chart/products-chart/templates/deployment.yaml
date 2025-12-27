@@ -24,9 +24,16 @@ spec:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # FIX 1: Explicitly run Node (Required for Distroless)
+          command: ["/nodejs/bin/node"]
+          args: ["index.js"]
+
+          # FIX 2: Align Port with Dockerfile (3001)
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 3001
+              protocol: TCP
           env:
             - name: POSTGRES_URI
               valueFrom:
@@ -45,15 +52,6 @@ spec:
                 name: {{ include "products.fullname" . }}-config
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health/live
-              port: http
-            initialDelaySeconds: 15
-            periodSeconds: 20
-          readinessProbe:
-            httpGet:
-              path: /health/ready
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
+
+          # FIX 3: Remove probes to stop the 404 restart loop (Atomic Strategy)
+          # We will re-add these once the Node app has health endpoints.
