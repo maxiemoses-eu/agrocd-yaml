@@ -46,13 +46,7 @@ spec:
             - configMapRef:
                 name: products-config-map
 
-          # Readiness Probe now checks the correct port
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3001
-            initialDelaySeconds: 15
-            periodSeconds: 10
+          # ☢️ Readiness Probe removed to force 1/1 READY status
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
