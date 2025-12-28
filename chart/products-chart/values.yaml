@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
-  tag: bb2504e-116
+  tag: bb2504e-117
   pullPolicy: IfNotPresent
 
 service:

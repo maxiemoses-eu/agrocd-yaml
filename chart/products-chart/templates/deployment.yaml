@@ -4,6 +4,7 @@ metadata:
   name: {{ include "products.fullname" . }}
   labels:
     {{- include "products.labels" . | nindent 4 }}
+
 spec:
   revisionHistoryLimit: 3
 
@@ -26,7 +27,9 @@ spec:
 
     spec:
       terminationGracePeriodSeconds: 30
-      serviceAccountName: {{ include "products.serviceAccountName" . }}
+
+      # 🔴 FIX: REMOVE BROKEN include, USE default
+      serviceAccountName: default
 
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -37,9 +40,6 @@ spec:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
-          # IMPORTANT: let Dockerfile CMD run
-          # command / args REMOVED
 
           ports:
             - name: http
