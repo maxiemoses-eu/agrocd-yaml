@@ -15,18 +15,20 @@ spec:
         {{- include "products.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: products
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 
-          # CRITICAL FIX 1: Explicit path to Node for Distroless
+          # SUCCESS FIX: Explicit Node path for Distroless
           command: ["/nodejs/bin/node"]
           
-          # CRITICAL FIX 2: Explicit working directory
+          # SUCCESS FIX: Explicitly set the location of your code
           workingDir: /app
           
-          # CRITICAL FIX 3: Correct entry point filename (server.js)
+          # SUCCESS FIX: Target server.js (NOT index.js)
           args: ["server.js"] 
 
           ports:
@@ -48,22 +50,20 @@ spec:
 
           envFrom:
             - configMapRef:
-                # Fixed to match standard Helm naming for your configMap
                 name: {{ include "products.fullname" . }}-config
 
-          # Probes updated to match your container port
           readinessProbe:
             httpGet:
               path: /health
               port: 3001
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /health
               port: 3001
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 20
 
           resources:
