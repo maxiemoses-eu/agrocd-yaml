@@ -5,7 +5,6 @@ metadata:
   labels:
     {{- include "products.labels" . | nindent 4 }}
 spec:
-  revisionHistoryLimit: 3
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -14,50 +13,42 @@ spec:
       {{- include "products.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         {{- include "products.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "products.serviceAccountName" . }}
       containers:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          
-          # 🟢 Fix: Execute via shell to find node path and run server.js
-          command: ["/bin/sh", "-c"]
-          args: ["node server.js"]
-
           ports:
             - name: http
               containerPort: 3001
               protocol: TCP
 
+          # 🔄 CHANGED TO / TO STOP THE 404
           readinessProbe:
             httpGet:
-              path: {{ .Values.probes.readinessPath }}
-              port: http
-            initialDelaySeconds: 15
+              path: /
+              port: 3001
+            initialDelaySeconds: 20
             periodSeconds: 10
+            failureThreshold: 3
 
           livenessProbe:
             httpGet:
-              path: {{ .Values.probes.livenessPath }}
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 20
+              path: /
+              port: 3001
+            initialDelaySeconds: 20
+            periodSeconds: 15
 
-          env:
-            - name: POSTGRES_URI
-              valueFrom:
-                secretKeyRef:
-                  name: products-config-secret
-                  key: dbUri
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: products-config-secret
-                  key: jwtSecret
-          envFrom:
-            - configMapRef:
-                name: products-config-map
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
