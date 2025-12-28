@@ -1,44 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "store-ui.fullname" . }}
+  name: {{ .Release.Name }}-store-ui
   labels:
-    app.kubernetes.io/name: {{ include "store-ui.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    app: store-ui
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "store-ui.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: store-ui
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "store-ui.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: store-ui
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: store-ui
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 80
-              name: http
-          envFrom:
-            - configMapRef:
-                name: {{ include "store-ui.fullname" . }}-config
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 10
-            periodSeconds: 20
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /
               port: 80
             initialDelaySeconds: 5
             periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20

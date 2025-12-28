@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-cart-cna-microservice
+  repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-store-ui
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
@@ -37,6 +37,9 @@ ingress:
     kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/success-codes: "200"
   hosts:
     - host: store-ui.yourdomain.com
       paths:
