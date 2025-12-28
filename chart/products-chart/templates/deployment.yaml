@@ -20,7 +20,6 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # Fixed for Distroless images
           command: ["/nodejs/bin/node"]
           workingDir: /app
           args: ["server.js"] 
@@ -46,7 +45,14 @@ spec:
             - configMapRef:
                 name: products-config-map
 
-          # ☢️ Readiness Probe removed to force 1/1 READY status
+          # ✅ FIXED: Re-added probe with the correct API path
+          readinessProbe:
+            httpGet:
+              path: /api/products
+              port: 3001
+            initialDelaySeconds: 20  # Give the DB connection time to establish
+            periodSeconds: 10
+            failureThreshold: 3
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
