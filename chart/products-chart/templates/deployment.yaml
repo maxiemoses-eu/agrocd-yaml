@@ -31,12 +31,16 @@ spec:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # 🟢 FIX: Override the crashing default 'index.js' with the correct 'server.js'
+          command: ["node"]
+          args: ["server.js"]
+
           ports:
             - name: http
               containerPort: 3001
               protocol: TCP
 
-          # 🟢 ALIGNED PROBE: Using / to guarantee a 200 OK since /health is missing in server.js
           readinessProbe:
             httpGet:
               path: / 
@@ -71,4 +75,3 @@ spec:
                 name: products-config-map
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-            
