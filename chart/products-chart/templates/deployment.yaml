@@ -34,21 +34,21 @@ spec:
               containerPort: 3001
               protocol: TCP
 
-          # 🔄 CHANGED TO / TO STOP THE 404
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 3001
-            initialDelaySeconds: 20
+            initialDelaySeconds: 10
             periodSeconds: 10
             failureThreshold: 3
 
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 3001
             initialDelaySeconds: 20
             periodSeconds: 15
+            failureThreshold: 5
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
