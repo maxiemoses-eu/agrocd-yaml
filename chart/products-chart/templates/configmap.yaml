@@ -6,4 +6,4 @@ metadata:
     {{- include "products.labels" . | nindent 4 }}
 data:
   FEATURE_FLAG: {{ .Values.configMap.FEATURE_FLAG | quote }}
-  LOG_LEVEL: {{ .Values.configMap.LOG_LEVEL | quote }}
+  LOG_LEVEL: {{ .Values.configMap.LOG_LEVEL | quote }
