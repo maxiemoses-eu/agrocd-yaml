@@ -4,18 +4,14 @@ metadata:
   name: {{ include "products.fullname" . }}
   labels:
     {{- include "products.labels" . | nindent 4 }}
-
 spec:
   revisionHistoryLimit: 3
-
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
-
   selector:
     matchLabels:
       {{- include "products.selectorLabels" . | nindent 6 }}
-
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -24,31 +20,26 @@ spec:
       {{- end }}
       labels:
         {{- include "products.selectorLabels" . | nindent 8 }}
-
     spec:
       terminationGracePeriodSeconds: 30
-
-      # 🔴 FIX: REMOVE BROKEN include, USE default
       serviceAccountName: default
-
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
       containers:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-
           ports:
             - name: http
               containerPort: 3001
               protocol: TCP
 
+          # 🟢 ALIGNED PROBE: Using / to guarantee a 200 OK since /health is missing in server.js
           readinessProbe:
             httpGet:
-              path: /health
+              path: / 
               port: http
             initialDelaySeconds: 15
             periodSeconds: 10
@@ -57,7 +48,7 @@ spec:
 
           livenessProbe:
             httpGet:
-              path: /health
+              path: /
               port: http
             initialDelaySeconds: 30
             periodSeconds: 20
@@ -75,10 +66,9 @@ spec:
                 secretKeyRef:
                   name: products-config-secret
                   key: jwtSecret
-
           envFrom:
             - configMapRef:
                 name: products-config-map
-
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+            

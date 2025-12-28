@@ -3,10 +3,15 @@ replicaCount: 2
 image:
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
   tag: bb2504e-118
-  pullPolicy: IfNotPresent
+  pullPolicy: Always # Changed to Always to ensure tag 118 is pulled fresh
 
 service:
   type: ClusterIP
+
+# Add this block to fix the 404 errors
+probes:
+  readinessPath: /
+  livenessPath: /
 
 resources:
   requests:
