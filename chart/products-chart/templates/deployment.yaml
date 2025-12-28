@@ -20,6 +20,15 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 
+          # CRITICAL FIX 1: Explicit path to Node for Distroless
+          command: ["/nodejs/bin/node"]
+          
+          # CRITICAL FIX 2: Explicit working directory
+          workingDir: /app
+          
+          # CRITICAL FIX 3: Correct entry point filename (server.js)
+          args: ["server.js"] 
+
           ports:
             - name: http
               containerPort: 3001
@@ -39,29 +48,23 @@ spec:
 
           envFrom:
             - configMapRef:
+                # Fixed to match standard Helm naming for your configMap
                 name: {{ include "products.fullname" . }}-config
 
+          # Probes updated to match your container port
           readinessProbe:
             httpGet:
               path: /health
-              port: http
-              scheme: HTTP
+              port: 3001
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
 
           livenessProbe:
             httpGet:
               path: /health
-              port: http
-              scheme: HTTP
+              port: 3001
             initialDelaySeconds: 15
             periodSeconds: 20
-            timeoutSeconds: 2
-            successThreshold: 1
-            failureThreshold: 3
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
