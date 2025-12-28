@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - name: http
-      port: 8080
-      targetPort: 9000  # 👈 Updated to match containerPort
+      port: {{ .Values.service.port }}
+      targetPort: 3001  # ✅ Matches containerPort in deployment.yaml
       protocol: TCP
   selector:
     {{- include "products.selectorLabels" . | nindent 4 }}
