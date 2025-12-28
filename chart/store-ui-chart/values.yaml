@@ -5,6 +5,9 @@ image:
   tag: bb2504e-116
   pullPolicy: IfNotPresent
 
+imagePullSecrets:
+  - name: ecr-secret   # ensure this secret exists for pulling from ECR
+
 service:
   type: LoadBalancer
   port: 80
@@ -40,6 +43,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     alb.ingress.kubernetes.io/healthcheck-path: /
     alb.ingress.kubernetes.io/success-codes: "200"
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
   hosts:
     - host: store-ui.yourdomain.com
       paths:
