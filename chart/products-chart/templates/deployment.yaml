@@ -2,57 +2,30 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "products.fullname" . }}
-  labels:
-    {{- include "products.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      {{- include "products.selectorLabels" . | nindent 6 }}
+  # ... (rest of your spec)
   template:
-    metadata:
-      labels:
-        {{- include "products.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
       containers:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          
-          command: ["/nodejs/bin/node"]
-          workingDir: /app
-          args: ["server.js"] 
-
           ports:
             - name: http
               containerPort: 3001
               protocol: TCP
-
-          env:
-            - name: POSTGRES_URI
-              valueFrom:
-                secretKeyRef:
-                  name: products-config-secret
-                  key: dbUri
-            - name: JWT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: products-config-secret
-                  key: jwtSecret
-
-          envFrom:
-            - configMapRef:
-                name: products-config-map
-
-          # ✅ FIXED: Re-added probe with the correct API path
+          
+          # ✅ UPDATED PROBE: Uses the path actually defined in your server.js
           readinessProbe:
             httpGet:
-              path: /api/products
+              path: /api/v1/products  # Added the missing /v1/
               port: 3001
-            initialDelaySeconds: 20  # Give the DB connection time to establish
+            initialDelaySeconds: 20
             periodSeconds: 10
             failureThreshold: 3
 
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/products
+              port: 3001
+            initialDelaySeconds: 20
+            periodSeconds: 15
