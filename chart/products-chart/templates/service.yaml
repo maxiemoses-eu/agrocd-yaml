@@ -2,14 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "products.fullname" . }}
-  labels:
-    {{- include "products.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - name: http
-      port: {{ .Values.service.port }}
-      targetPort: 3001  # ✅ Matches containerPort in deployment.yaml
+      port: 80          # 👈 Change this from {{ .Values.service.port }} to 80
+      targetPort: 3001  # This stays 3001 to match your app
       protocol: TCP
   selector:
     {{- include "products.selectorLabels" . | nindent 4 }}
