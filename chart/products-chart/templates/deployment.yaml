@@ -29,6 +29,8 @@ spec:
         - name: product-catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/nodejs/bin/node"]
+          args: ["server.js"]
           ports:
             - name: http
               containerPort: 3001
@@ -49,6 +51,22 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 15
             failureThreshold: 5
+
+          env:
+            - name: POSTGRES_URI
+              valueFrom:
+                secretKeyRef:
+                  name: products-config-secret
+                  key: dbUri
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: products-config-secret
+                  key: jwtSecret
+
+          envFrom:
+            - configMapRef:
+                name: products-config-map
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
