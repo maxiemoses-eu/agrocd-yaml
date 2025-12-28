@@ -22,14 +22,12 @@ securityContext:
   fsGroup: 1001
 
 productsSecret:
-  name: products-chart-secret
   dbUri: postgres://productadmin:productpass@postgresql.database.svc.cluster.local:5432/products
   jwtSecret: supersecretjwtkey
 
 serviceAccount:
   create: true
   name: products-chart-sa
-  automount: true
 
 configMap:
   FEATURE_FLAG: "true"
