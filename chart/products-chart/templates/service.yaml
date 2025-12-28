@@ -9,7 +9,7 @@ spec:
   ports:
     - name: http
       port: 8080
-      targetPort: http
+      targetPort: 9000  # 👈 Updated to match containerPort
       protocol: TCP
   selector:
     {{- include "products.selectorLabels" . | nindent 4 }}
