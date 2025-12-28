@@ -32,9 +32,9 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           
-          # 🟢 FIX: Override the crashing default 'index.js' with the correct 'server.js'
-          command: ["node"]
-          args: ["server.js"]
+          # 🟢 FIX: Use shell to find 'node' and run 'server.js'
+          command: ["/bin/sh", "-c"]
+          args: ["node server.js"]
 
           ports:
             - name: http
