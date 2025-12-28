@@ -3,12 +3,12 @@ replicaCount: 2
 image:
   repository: 659591640509.dkr.ecr.us-west-2.amazonaws.com/streamlinepay-prod-products-cna-microservice
   tag: bb2504e-118
-  pullPolicy: Always # Changed to Always to ensure tag 118 is pulled fresh
+  pullPolicy: Always
 
 service:
   type: ClusterIP
 
-# Add this block to fix the 404 errors
+# 🟢 Path set to / to ensure a 200 OK response
 probes:
   readinessPath: /
   livenessPath: /
@@ -27,7 +27,8 @@ securityContext:
   fsGroup: 1001
 
 productsSecret:
-  dbUri: postgres://productadmin:productpass@postgresql.database.svc.cluster.local:5432/products
+  # 🟢 Points to the existing products-db service you confirmed in your terminal
+  dbUri: postgres://productadmin:productpass@products-db.products.svc.cluster.local:5432/products
   jwtSecret: supersecretjwtkey
 
 serviceAccount:
