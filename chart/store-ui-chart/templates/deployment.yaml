@@ -1,11 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-store-ui
+  # FIX: Match the name used in the HPA scaleTargetRef
+  name: {{ include "store-ui.fullname" . }}
   labels:
     app: store-ui
 spec:
-  replicas: {{ .Values.replicaCount }}
+  # RECOMENDED: Comment out replicas when using HPA to avoid Sync loops
+  # replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: store-ui
@@ -45,6 +47,3 @@ spec:
               port: 80
             initialDelaySeconds: 15
             periodSeconds: 20
-      {{- if .Values.autoscaling.enabled }}
-      # Optional: Add autoscaling annotations if needed
-      {{- end }}
